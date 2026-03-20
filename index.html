@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VB Sports</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>VB Sports</h1>
+    <div class="controls">
+      <div class="filters">
+        <label class="filter libby">
+          <input type="checkbox" data-calendar="libby-basketball" checked>
+          <span class="dot"></span> Libby
+        </label>
+        <label class="filter sloan">
+          <input type="checkbox" data-calendar="sloan-soccer" checked>
+          <span class="dot"></span> Sloan
+        </label>
+        <label class="filter hadley">
+          <input type="checkbox" data-calendar="hadley-soccer" checked>
+          <span class="dot"></span> Hadley
+        </label>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="list">List</button>
+        <button class="view-btn" data-view="month">Month</button>
+      </div>
+    </div>
+  </header>
+  <main id="calendar"></main>
+  <footer>
+    <span id="last-updated"></span>
+    <a class="subscribe-link" href="data/vb-sports.ics" download>Subscribe (.ics)</a>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
