@@ -72,18 +72,20 @@
 
   function weekKey(dateStr) {
     const d = new Date(dateStr);
-    const sun = new Date(d);
-    sun.setDate(d.getDate() - d.getDay());
-    return dateKey(sun.toISOString());
+    const day = d.getDay();
+    const mon = new Date(d);
+    mon.setDate(d.getDate() - ((day + 6) % 7)); // Monday start
+    return dateKey(mon.toISOString());
   }
 
   function weekLabel(dateStr) {
     const d = new Date(dateStr);
-    const sun = new Date(d);
-    sun.setDate(d.getDate() - d.getDay());
-    const sat = new Date(sun);
-    sat.setDate(sun.getDate() + 6);
-    return `${sun.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${sat.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    const day = d.getDay();
+    const mon = new Date(d);
+    mon.setDate(d.getDate() - ((day + 6) % 7));
+    const sun = new Date(mon);
+    sun.setDate(mon.getDate() + 6);
+    return `${mon.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${sun.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
   }
 
   function isPast(dateStr) {
@@ -141,13 +143,18 @@
       days.get(dk).push(ev);
     }
 
+    const todayKey = dateKey(new Date().toISOString());
+    let scrollTarget = null;
+
     let html = '';
     for (const [wk, days] of weeks) {
       const firstEvt = days.values().next().value[0];
       html += `<div class="week-group">`;
       html += `<div class="week-label">${weekLabel(firstEvt.date)}</div>`;
       for (const [dk, dayEvts] of days) {
-        html += `<div class="day-group">`;
+        const isScrollTarget = !scrollTarget && dk >= todayKey;
+        if (isScrollTarget) scrollTarget = dk;
+        html += `<div class="day-group"${isScrollTarget ? ` id="scroll-target"` : ''}>`;
         html += `<div class="day-label">${formatDayLabel(dayEvts[0].date)}</div>`;
         for (const ev of dayEvts) {
           const past = isPast(ev.endDate || ev.date) ? ' past' : '';
@@ -170,6 +177,9 @@
       html += `</div>`;
     }
     main.innerHTML = html;
+
+    const target = document.getElementById('scroll-target');
+    if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
 
   function renderMonth() {
@@ -190,7 +200,8 @@
       }
     }
 
-    const firstDay = new Date(year, month, 1).getDay();
+    const firstDayRaw = new Date(year, month, 1).getDay();
+    const firstDay = (firstDayRaw + 6) % 7; // Mon=0, Sun=6
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
     const todayDate = today.getFullYear() === year && today.getMonth() === month ? today.getDate() : -1;
@@ -202,7 +213,7 @@
     html += `</div>`;
 
     html += `<div class="month-grid">`;
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     for (const d of dayNames) {
       html += `<div class="day-header">${d}</div>`;
     }
