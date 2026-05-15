@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>108th PGA Championship — Picks Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="header-top">
+        <span class="trophy">🏆</span>
+        <div>
+          <h1>108<sup>th</sup> PGA Championship</h1>
+          <div id="event-info" class="event-info">Loading tournament info...</div>
+        </div>
+      </div>
+      <div class="live-bar">
+        <span class="live-pulse" id="live-pulse"></span>
+        <span id="live-status">Connecting...</span>
+        <button id="refresh-btn" class="refresh-btn" title="Refresh">↻</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="picks-grid">
+      <!-- WIN -->
+      <section class="card">
+        <h2 class="card-title">WIN</h2>
+        <ul id="win-list" class="pick-list"></ul>
+      </section>
+
+      <!-- T20s -->
+      <section class="card">
+        <h2 class="card-title">T20s</h2>
+        <ul id="t20-list" class="pick-list"></ul>
+      </section>
+
+      <!-- FRL left -->
+      <section class="card">
+        <h2 class="card-title">FRL</h2>
+        <ul id="frl1-list" class="pick-list"></ul>
+      </section>
+
+      <!-- FRL right -->
+      <section class="card">
+        <h2 class="card-title">FRL</h2>
+        <ul id="frl2-list" class="pick-list"></ul>
+      </section>
+    </div>
+
+    <!-- PROPS -->
+    <section class="card props-card">
+      <h2 class="card-title">PROPS</h2>
+      <ul id="props-list" class="pick-list"></ul>
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="card leaderboard-card">
+      <h2 class="card-title">Picks Tracker — Current Standings</h2>
+      <div id="leaderboard-wrap">
+        <div class="loading-msg">Fetching live leaderboard...</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
