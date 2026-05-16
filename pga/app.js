@@ -222,13 +222,15 @@ function parsePos(pos) {
   return isNaN(n) ? 9999 : n;
 }
 
+// Strip diacritics and lowercase so "Åberg" === "Aberg", etc.
+function norm(s) {
+  return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+}
+
 function find(canonicalName) {
-  const aliases = ALIASES[canonicalName] || [canonicalName];
-  for (const [name, d] of Object.entries(liveData)) {
-    if (aliases.some(a =>
-      name.toLowerCase() === a.toLowerCase() ||
-      name.toLowerCase().includes(a.toLowerCase().split(' ').pop()) // last name match
-    )) return d;
+  const targets = (ALIASES[canonicalName] || [canonicalName]).map(norm);
+  for (const [espnName, data] of Object.entries(liveData)) {
+    if (targets.includes(norm(espnName))) return data;
   }
   return null;
 }
