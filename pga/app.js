@@ -169,12 +169,33 @@ function parseESPN(data) {
   competitors.forEach(c => {
     const name = c.athlete?.displayName;
     if (!name) return;
-    const pos    = c.status?.position?.displayName || '-';
-    const posNum = parsePos(pos);
-    const score  = c.score || 'E';
-    const status = c.status?.type?.name || '';
-    const r1     = extractR1(c);
-    liveData[name] = { name, pos, posNum, score, status, r1 };
+
+    const statusTypeName = (c.status?.type?.name || '').toUpperCase();
+    const posDisplay     = c.status?.position?.displayName || '-';
+    const posId          = c.status?.position?.id;
+
+    // Missed cut is determined by status type, NOT position.displayName.
+    // ESPN uses position.displayName="CUT" for players AT the cut line who
+    // DID make the cut — the actual missed-cut flag is in the status type.
+    const missedCut = /CUT|MDF/.test(statusTypeName);
+
+    let pos, posNum;
+    if (posDisplay.toUpperCase() === 'WD')     { pos = 'WD'; posNum = 1002; }
+    else if (posDisplay.toUpperCase() === 'DQ') { pos = 'DQ'; posNum = 1003; }
+    else if (missedCut)                         { pos = 'MC'; posNum = 1001; }
+    else if (posDisplay.toUpperCase() === 'CUT') {
+      // Player is at the cut line but made it — use position id for ranking
+      const n = posId ? parseInt(posId, 10) : 70;
+      pos    = posDisplay;
+      posNum = isNaN(n) ? 70 : n;
+    } else {
+      pos    = posDisplay;
+      posNum = parsePos(posDisplay);
+    }
+
+    const score = c.score || 'E';
+    const r1    = extractR1(c);
+    liveData[name] = { name, pos, posNum, score, statusType: statusTypeName, missedCut, r1 };
   });
 
   // Determine FRL once we're in round 2+ (R1 is fully scored)
@@ -235,7 +256,7 @@ function find(canonicalName) {
   return null;
 }
 
-function isCut(p)    { return p && p.posNum >= 1001; }
+function isCut(p)    { return p && (p.missedCut || p.posNum >= 1001); }
 function scoreClass(s) {
   if (!s || s === '-') return '';
   if (s === 'E') return 'even';
@@ -565,6 +586,20 @@ function renderAll() {
   renderProps();
   renderSummary();
   renderLeaderboard();
+  renderDebug();
+}
+
+function renderDebug() {
+  if (!new URLSearchParams(location.search).has('debug')) return;
+  document.getElementById('debug-panel').style.display = '';
+  const rows = ALL_PLAYERS.map(name => {
+    const p = find(name);
+    return `${name.padEnd(22)} pos=${String(p?.pos ?? '–').padEnd(5)} posNum=${String(p?.posNum ?? '–').padEnd(5)} missedCut=${String(p?.missedCut ?? '–').padEnd(6)} status=${p?.statusType ?? '–'} score=${p?.score ?? '–'}`;
+  });
+  document.getElementById('debug-content').textContent =
+    `Event: ${tourney.name} | Round ${tourney.round} | complete=${tourney.complete}\n\n` +
+    rows.join('\n') +
+    `\n\nAll ESPN names loaded: ${Object.keys(liveData).length}`;
 }
 
 function setStatus(msg) {
